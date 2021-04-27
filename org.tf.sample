@@ -1,0 +1,29 @@
+resource "aws_organizations_organization" "this" {
+  aws_service_access_principals = [
+    "cloudtrail.amazonaws.com",
+    "config.amazonaws.com",
+    "ram.amazonaws.com",
+    "config.amazonaws.com",
+    "config-multiaccountsetup.amazonaws.com",
+    "securityhub.amazonaws.com"
+  ]
+  enabled_policy_types = ["SERVICE_CONTROL_POLICY", "AISERVICES_OPT_OUT_POLICY"]
+  feature_set          = "ALL"
+}
+
+resource "aws_organizations_organizational_unit" "prod" {
+  name      = "Prod"
+  parent_id = aws_organizations_organization.this.roots[0].id
+}
+
+resource "aws_organizations_organizational_unit" "dev" {
+  name      = "Dev"
+  parent_id = aws_organizations_organization.this.roots[0].id
+}
+
+resource "null_resource" "this" {
+  provisioner "local-exec" {
+    command = "aws --region ${var.aws_region} ram enable-sharing-with-aws-organization"
+  }
+  depends_on = [aws_organizations_organization.this]
+}
