@@ -21,9 +21,7 @@ resource "aws_organizations_organizational_unit" "dev" {
   parent_id = aws_organizations_organization.this.roots[0].id
 }
 
-resource "null_resource" "this" {
-  provisioner "local-exec" {
-    command = "aws --region ${var.aws_region} ram enable-sharing-with-aws-organization"
-  }
-  depends_on = [aws_organizations_organization.this]
-}
+# Enable sharing with AWS Organizations 
+# If you enable sharing with the accounts of your organization, 
+# you can share resources without using invitations.
+resource "aws_ram_sharing_with_organization" "this" {}
